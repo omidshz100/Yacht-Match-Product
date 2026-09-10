@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'sample-profiles.js'
-      - 'product-insights.js'
+      - 'language-fix.js'
       - '.github/workflows/append-sample-profiles.yml'
 permissions:
   contents: write
@@ -13,19 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Add sample profiles and product insights scripts to index
+      - name: Add sample profiles and language fix scripts to index
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text()
-          sample='<script src="/sample-profiles.js"></script>'
-          insights='<script src="/product-insights.js"></script>'
           anchor='<script src="/firebase-comments.js"></script>'
-          if sample not in s:
-              s=s.replace(anchor, sample+'\n'+anchor)
-          if insights not in s:
-              s=s.replace(anchor, insights+'\n'+anchor)
+          tags=[
+              '<script src="/sample-profiles.js"></script>',
+              '<script src="/language-fix.js"></script>'
+          ]
+          for tag in tags:
+              if tag not in s:
+                  s=s.replace(anchor, tag+'\n'+anchor)
           p.write_text(s)
           PY
       - name: Commit index update
@@ -34,5 +35,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Append product insights to sample profiles'
+          git commit -m 'Wire sample profiles and multilingual switcher'
           git push
