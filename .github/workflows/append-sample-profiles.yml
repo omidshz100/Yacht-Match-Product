@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'sample-profiles.js'
+      - '.github/workflows/append-sample-profiles.yml'
 permissions:
   contents: write
 jobs:
