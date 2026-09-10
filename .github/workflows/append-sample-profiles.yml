@@ -1,0 +1,33 @@
+name: Append sample profiles
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sample-profiles.js'
+permissions:
+  contents: write
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add sample profiles script to index
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          tag='<script src="/sample-profiles.js"></script>'
+          anchor='<script src="/firebase-comments.js"></script>'
+          if tag not in s:
+              s=s.replace(anchor, tag+'\n'+anchor)
+              p.write_text(s)
+          PY
+      - name: Commit index update
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Append illustrative crew and owner profiles'
+          git push
